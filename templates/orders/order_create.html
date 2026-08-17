@@ -1,0 +1,132 @@
+<!-- templates/orders/order_create.html -->
+{% extends 'base.html' %}
+
+{% block title %}กรอกข้อมูลจัดส่งวัตถุมงคล | พระเครื่องศักดิ์สิทธิ์{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'cart:cart_detail' %}" class="text-[#A6937C] hover:text-[#D4AF37] transition text-sm flex items-center gap-1">
+        ← กลับไปแก้ไขรายการในตะกร้า
+    </a>
+</div>
+
+<h1 class="text-2xl md:text-3xl font-bold text-[#D4AF37] mb-6 flex items-center gap-2">
+    📦 ข้อมูลการจัดส่งวัตถุมงคล
+</h1>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- ฝั่งซ้าย: ฟอร์มกรอกชื่อ ที่อยู่ จัดส่ง (2 คอลัมน์) -->
+    <div class="lg:col-span-2">
+        <div class="sacred-card p-6 md:p-8">
+            <h2 class="text-lg font-bold text-[#F5E6C8] mb-6 border-b border-[#D4AF37]/20 pb-2 flex items-center gap-2">
+                🏠 ที่อยู่สำหรับจัดส่งวัตถุมงคล
+            </h2>
+
+            <form method="post" action="{% url 'orders:order_create' %}" class="space-y-5">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-sm font-semibold text-[#F5E6C8] mb-2">
+                        ชื่อ-นามสกุล ผู้รับวัตถุมงคล <span class="text-red-400">*</span>
+                    </label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                        <p class="text-red-400 text-xs mt-1">{{ form.full_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-[#F5E6C8] mb-2">
+                        เบอร์โทรศัพท์ที่ติดต่อได้ <span class="text-red-400">*</span>
+                    </label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <p class="text-red-400 text-xs mt-1">{{ form.phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-[#F5E6C8] mb-2">
+                        LINE ID <span class="text-[#A6937C] font-normal text-xs">(ไม่บังคับ - สำหรับรับแจ้งเลขพัสดุ)</span>
+                    </label>
+                    {{ form.line_id }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-[#F5E6C8] mb-2">
+                        ที่อยู่จัดส่งโดยละเอียด <span class="text-red-400">*</span>
+                    </label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                        <p class="text-red-400 text-xs mt-1">{{ form.address.errors.0 }}</p>
+                    {% endif %}
+                    <span class="text-xs text-[#A6937C] block mt-1">
+                        * ระบุบ้านเลขที่ หมู่บ้าน/ซอย ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด และรหัสไปรษณีย์
+                    </span>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full btn-gold py-3.5 text-base font-bold shadow-lg hover:shadow-[#D4AF37]/30 flex justify-center items-center gap-2">
+                        ไปที่หน้าชำระเงิน (QR Code) →
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ฝั่งขวา: สรุปรายการสินค้าที่กำลังสั่งซื้อ (1 คอลัมน์) -->
+    <div class="lg:col-span-1">
+        <div class="sacred-card p-6 sticky top-6">
+            <h2 class="text-lg font-bold text-[#D4AF37] mb-4 border-b border-[#D4AF37]/20 pb-2">
+                สรุปรายการเช่าบูชา ({{ cart|length }} รายการ)
+            </h2>
+
+            <!-- ย่อรายการสินค้าในตะกร้า -->
+            <div class="space-y-3 mb-6 max-h-60 overflow-y-auto pr-1">
+                {% for item in cart %}
+                    {% with product=item.product %}
+                        <div class="flex items-center gap-3 bg-[#120C08] p-2.5 rounded border border-[#D4AF37]/20">
+                            <div class="w-12 h-12 bg-[#120C08] rounded border border-[#D4AF37]/30 flex-shrink-0 p-1 flex items-center justify-center">
+                                {% if product.main_image %}
+                                    <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="max-w-full max-h-full object-contain">
+                                {% else %}
+                                    <span class="text-[10px] text-[#A6937C]">ไม่มีรูป</span>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-[#F5E6C8] font-semibold truncate">{{ product.name }}</p>
+                                <p class="text-xs text-[#A6937C]">จำนวน: {{ item.quantity }} องค์</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-bold text-[#D4AF37]">฿{{ item.total_price|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+
+            <!-- คำนวณยอดรวม -->
+            <div class="space-y-2 border-t border-[#D4AF37]/20 pt-4 text-sm">
+                <div class="flex justify-between text-[#A6937C]">
+                    <span>รวมค่าเช่าบูชา:</span>
+                    <span class="text-[#F5E6C8]">฿{{ cart.get_total_price|floatformat:0 }}</span>
+                </div>
+                <div class="flex justify-between text-[#A6937C]">
+                    <span>ค่าบริการจัดส่ง:</span>
+                    <span class="text-green-400 font-semibold">ฟรีจัดส่ง</span>
+                </div>
+                <div class="border-t border-[#D4AF37]/20 pt-3 flex justify-between items-baseline">
+                    <span class="text-base font-bold text-[#F5E6C8]">ยอดชำระสุทธิ:</span>
+                    <span class="text-2xl font-bold text-[#D4AF37]">฿{{ cart.get_total_price|floatformat:0 }}</span>
+                </div>
+            </div>
+
+            <div class="mt-6 text-xs text-[#A6937C] text-center">
+                🛡️ จัดส่งด้วยกล่องพัสดุกันกระแทกอย่างดี พร้อมใบรับประกันพระแท้
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

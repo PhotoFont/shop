@@ -1,0 +1,99 @@
+<!-- templates/orders/payment.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ชำระเงินเช่าบูชา #{{ order.id }} | พระเครื่องศักดิ์สิทธิ์{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- หัวข้อ -->
+    <div class="text-center mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-[#D4AF37] mb-2 flex items-center justify-center gap-2">
+            💳 ชำระเงินเช่าบูชาวัตถุมงคล
+        </h1>
+        <p class="text-[#A6937C] text-sm">
+            คำสั่งซื้อหมายเลข <span class="text-[#F5E6C8] font-bold">#{{ order.id }}</span> | กรุณาโอนเงินและแนบสลิปเพื่อยืนยัน
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sacred-card p-6 md:p-8 mb-8">
+        
+        <!-- ฝั่งซ้าย: สแกน QR Code / บัญชีธนาคาร -->
+        <div class="flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#D4AF37]/20 pb-6 md:pb-0 md:pr-6 text-center">
+            <span class="text-xs text-[#A6937C] block mb-1">ยอดชำระสุทธิ</span>
+            <div class="text-3xl font-bold text-[#D4AF37] mb-4">
+                ฿{{ order.total_price|floatformat:0 }}
+            </div>
+
+            <!-- กล่องแสดง QR Code PromptPay -->
+            <div class="bg-white p-3 rounded-lg border-2 border-[#D4AF37] shadow-lg mb-4">
+                <!-- หมายเหตุ: เปลี่ยน src รูป QR Code ให้ตรงกับไฟล์ของคุณ หรือใช้ API สร้าง QR PromptPay -->
+                <img src="https://promptpay.io/0854804152/{{ order.total_price }}" 
+                     alt="PromptPay QR Code" 
+                     class="w-48 h-48 object-contain mx-auto">
+            </div>
+
+            <!-- รายละเอียดบัญชีโอนเงิน -->
+            <div class="space-y-1 text-sm text-[#F5E6C8]">
+                <p class="font-semibold text-[#D4AF37]">ธนาคารกรุงไทย (Krungthai Next)</p>
+                <p>เลขที่บัญชี: <span class="font-mono bg-[#120C08] px-2 py-0.5 rounded border border-[#D4AF37]/30 text-[#D4AF37]">264-0-12168-5</span></p>
+                <p class="text-xs text-[#A6937C]">ชื่อบัญชี: นายศักดิ์สิทธิ์ เสงี่ยมงาม</p>
+            </div>
+        </div>
+
+        <!-- ฝั่งขวา: ฟอร์มแนบสลิปโอนเงิน -->
+        <div class="flex flex-col justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-[#F5E6C8] mb-4 border-b border-[#D4AF37]/20 pb-2 flex items-center gap-2">
+                    🧾 แนบหลักฐานการโอนเงิน (สลิป)
+                </h3>
+
+                <form method="post" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label class="block text-xs text-[#A6937C] mb-2">เลือกไฟล์รูปภาพสลิปโอนเงิน</label>
+                        <input type="file" 
+                               name="slip_image" 
+                               accept="image/*" 
+                               required 
+                               id="id_slip_image"
+                               onchange="previewSlip(event)"
+                               class="w-full text-sm text-[#A6937C] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#D4AF37] file:text-[#120C08] hover:file:bg-[#b8952d] cursor-pointer bg-[#120C08] border border-[#D4AF37]/30 rounded p-1">
+                    </div>
+
+                    <!-- แสดงตัวอย่างรูปสลิปที่เลือก -->
+                    <div id="slipPreviewContainer" class="hidden mt-4 text-center">
+                        <span class="text-xs text-[#A6937C] block mb-1">ตัวอย่างสลิปที่เลือก:</span>
+                        <img id="slipPreview" src="#" alt="ตัวอย่างสลิป" class="max-h-48 mx-auto rounded border border-[#D4AF37]/40 p-1 bg-[#120C08]">
+                    </div>
+
+                    <button type="submit" class="w-full btn-gold py-3 text-base font-bold shadow-lg hover:shadow-[#D4AF37]/30 mt-6 flex justify-center items-center gap-2">
+                        ✅ ยืนยันการชำระเงิน
+                    </button>
+                </form>
+            </div>
+
+            <div class="mt-6 text-xs text-[#A6937C] bg-[#120C08] p-3 rounded border border-[#D4AF37]/20">
+                📌 <strong class="text-[#F5E6C8]">ข้อแนะนำ:</strong> หลังจากแจ้งชำระเงินเรียบร้อยแล้ว ทางร้านจะทำการตรวจสอบสลิปและดำเนินการจัดส่งวัตถุมงคลให้ท่านโดยเร็วที่สุดครับ
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- JavaScript พรีวิวรูปสลิปก่อนส่ง -->
+<script>
+    function previewSlip(event) {
+        const input = event.target;
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('slipPreview').src = e.target.result;
+                document.getElementById('slipPreviewContainer').classList.remove('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,48 @@
+/* static/css/style.css */
+:root {
+  --bg-main: #120C08;       /* พื้นหลังหลัก (น้ำตาลเข้มจัด) */
+  --bg-card: #1C140E;       /* พื้นหลังการ์ด/กล่องสินค้า */
+  --color-gold: #D4AF37;    /* สีทองหลัก */
+  --color-gold-hover: #AA7C11; /* สีทองเข้ม */
+  --text-main: #F5E6C8;     /* สีข้อความหลัก */
+  --text-muted: #A6937C;    /* สีข้อความย่อย */
+  --border-gold: rgba(212, 175, 55, 0.25);
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Kanit', 'Sarabun', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* ตกแต่งกรอบการ์ดสินค้า */
+.sacred-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.sacred-card:hover {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+}
+
+/* ปุ่มเช่าบูชาสีทอง */
+.btn-gold {
+  background: linear-gradient(135deg, var(--color-gold), var(--color-gold-hover));
+  color: #120C08;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-gold:hover {
+  filter: brightness(1.1);
+}

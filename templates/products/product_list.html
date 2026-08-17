@@ -1,0 +1,124 @@
+<!-- templates/products/product_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}รายการเครื่องรางวัตถุมงคล | พระเครื่องศักดิ์สิทธิ์{% endblock %}
+
+{% block content %}
+<div class="mb-8 text-center">
+    <h1 class="text-3xl md:text-4xl font-bold text-[#D4AF37] mb-2">วัตถุมงคลทรงคุณค่า</h1>
+    <p class="text-[#A6937C]">ผ่านพิธีพุทธาภิเษก รับประกันพระแท้ตลอดชีพ</p>
+</div>
+
+<!-- หมวดหมู่สินค้า -->
+<div class="flex flex-wrap justify-center gap-3 mb-8">
+    <a href="{% url 'products:product_list' %}" 
+       class="px-4 py-2 rounded-full border border-[#D4AF37]/40 text-sm transition {% if not selected_category %}bg-[#D4AF37] text-[#120C08] font-bold{% else %}text-[#F5E6C8] hover:border-[#D4AF37]{% endif %}">
+        ทั้งหมด
+    </a>
+    {% for cat in categories %}
+        <a href="{% url 'products:product_list' %}?category={{ cat.slug }}" 
+           class="px-4 py-2 rounded-full border border-[#D4AF37]/40 text-sm transition {% if selected_category.slug == cat.slug %}bg-[#D4AF37] text-[#120C08] font-bold{% else %}text-[#F5E6C8] hover:border-[#D4AF37]{% endif %}">
+            {{ cat.name }}
+        </a>
+    {% endfor %}
+</div>
+
+<!-- 🟢 แถวสไลด์โชว์สินค้าสุ่ม (แก้ไขจุดดึงภาพเรียบร้อยแล้ว) -->
+{% if random_products %}
+<div class="my-6 px-4">
+    <h3 class="text-lg font-bold text-[#D4AF37] mb-3 flex items-center gap-2">
+        ✨ วัตถุมงคลแนะนำสำหรับคุณ
+    </h3>
+    
+    <!-- Swiper Container -->
+    <div class="swiper randomProductSwiper py-2">
+        <div class="swiper-wrapper">
+            {% for item in random_products %}
+            <div class="swiper-slide">
+                <div class="bg-[#1A1813] border border-[#D4AF37]/30 rounded-lg p-3 hover:border-[#D4AF37] transition shadow-md text-left h-full flex flex-col justify-between">
+                    <a href="{% url 'products:product_detail' item.slug %}">
+                        <!-- 🟢 แก้ไขตรงนี้: เปลี่ยน item.image เป็น item.main_image -->
+                        {% if item.main_image %}
+                            <img src="{{ item.main_image.url }}" alt="{{ item.name }}" class="w-full h-36 object-contain rounded-md mb-2">
+                        {% else %}
+                            <div class="w-full h-36 bg-[#120C08] rounded-md mb-2 flex items-center justify-center text-xs text-[#A6937C]">
+                                ไม่มีรูปภาพ
+                            </div>
+                        {% endif %}
+                        <h4 class="text-sm font-semibold text-[#F5E6C8] truncate">{{ item.name }}</h4>
+                    </a>
+                    <p class="text-xs text-[#D4AF37] font-bold mt-2">
+                        ฿{% if item.get_price %}{{ item.get_price|floatformat:0 }}{% else %}{{ item.price }}{% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Script สำหรับควบคุมการสไลด์ -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    new Swiper('.randomProductSwiper', {
+      slidesPerView: 2,
+      spaceBetween: 15,
+      autoplay: {
+        delay: 3000,
+        disableOnInteraction: false,
+      },
+      breakpoints: {
+        640: { slidesPerView: 3, spaceBetween: 15 },
+        768: { slidesPerView: 4, spaceBetween: 20 },
+        1024: { slidesPerView: 5, spaceBetween: 20 },
+      },
+    });
+  });
+</script>
+{% endif %}
+
+<!-- ตารางแสดงรายการสินค้า (Grid System) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for product in products %}
+        <div class="sacred-card p-4 flex flex-col justify-between">
+            <div>
+                <!-- รูปสินค้า -->
+                <div class="relative aspect-square overflow-hidden rounded-md mb-3 bg-[#120C08]">
+                    {% if product.main_image %}
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="w-full h-full object-contain hover:scale-105 transition duration-500">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-[#A6937C]">ไม่มีรูปภาพ</div>
+                    {% endif %}
+                    
+                    {% if product.is_featured %}
+                        <span class="absolute top-2 left-2 bg-[#D4AF37] text-[#120C08] text-xs font-bold px-2 py-1 rounded shadow">
+                            ยอดนิยม
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- ข้อมูลสินค้า -->
+                <span class="text-xs text-[#A6937C] uppercase tracking-wider block mb-1">{{ product.category.name }}</span>
+                <h3 class="text-[#F5E6C8] font-bold text-lg mb-2 line-clamp-1 hover:text-[#D4AF37]">
+                    <a href="{% url 'products:product_detail' product.slug %}">{{ product.name }}</a>
+                </h3>
+            </div>
+
+            <!-- ราคาและปุ่มสั่งซื้อ -->
+            <div class="border-t border-[#D4AF37]/20 pt-3 mt-3 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-[#A6937C] block">เช่าบูชา</span>
+                    <span class="text-[#D4AF37] font-bold text-xl">฿{{ product.get_price|floatformat:0 }}</span>
+                </div>
+                <a href="{% url 'products:product_detail' product.slug %}" class="btn-gold text-sm">
+                    รายละเอียด
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-span-full text-center py-12 text-[#A6937C]">
+            <p class="text-lg">ยังไม่มีรายการวัตถุมงคลในหมวดหมู่นี้</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

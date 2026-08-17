@@ -1,0 +1,153 @@
+<!-- templates/admin/index.html -->
+{% extends "admin/index.html" %}
+
+{% block content %}
+<style>
+    /* 1. ปลดล็อก Layout หลักของ Django Admin */
+    #container, #content, #content-main {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        float: none !important;
+    }
+
+    /* 2. กล่องออเดอร์ใหม่กว้างเต็ม 100% ด้านบน */
+    .pending-orders-banner {
+        width: 100% !important;
+        margin-bottom: 24px !important;
+        box-sizing: border-box !important;
+    }
+
+    .pending-orders-card {
+        background: #fffbebf5;
+        border: 2px solid #f59e0b;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+    }
+
+    .pending-table {
+        width: 100% !important;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 6px;
+        overflow: hidden;
+        font-size: 13px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .pending-table th, .pending-table td {
+        white-space: nowrap !important;
+        padding: 10px 12px !important;
+    }
+
+    /* 3. กำหนดสัดส่วน 2 คอลัมน์ด้านล่าง: ซ้าย 40% / ขวา 60% */
+    .admin-bottom-container {
+        display: flex !important;
+        gap: 24px !important;
+        width: 100% !important;
+        align-items: flex-start !important;
+        margin-top: 20px;
+        box-sizing: border-box !important;
+    }
+
+    /* ฝั่งซ้าย 40% (AUTHENTICATION, ORDERS + ประวัติการขาย, PRODUCTS) */
+    .admin-left-column {
+        width: 40% !important;
+        flex: 0 0 40% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* ฝั่งขวา 60% (Recent actions) */
+    .admin-right-column {
+        width: calc(60% - 24px) !important;
+        flex: 0 0 calc(60% - 24px) !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .admin-right-column #recent-actions-module {
+        width: 100% !important;
+        margin-top: 0 !important;
+        box-sizing: border-box !important;
+    }
+</style>
+
+<!-- 🟢 ส่วนที่ 1: กล่องแจ้งเตือนออเดอร์ใหม่ (กว้างเต็ม 100%) -->
+{% if pending_count > 0 %}
+<div class="pending-orders-banner">
+    <div class="pending-orders-card">
+        
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid #fcd34d; padding-bottom: 8px;">
+            <h2 style="margin: 0; color: #b45309; font-size: 15px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                🔔 ออเดอร์ใหม่ / รอตรวจสอบสลิป 
+                <span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                    {{ pending_count }} รายการ
+                </span>
+            </h2>
+            <a href="/admin/orders/order/?status__exact=pending" style="color: #b45309; font-weight: bold; text-decoration: none; font-size: 12px; background: #fef3c7; padding: 5px 12px; border-radius: 4px; border: 1px solid #fcd34d;">
+                ดูทั้งหมด →
+            </a>
+        </div>
+
+        <!-- Table แสดงข้อมูล -->
+        <div style="width: 100%; overflow-x: auto;">
+            <table class="pending-table">
+                <thead>
+                    <tr style="background: #fef3c7; color: #92400e; text-align: left; border-bottom: 1px solid #fcd34d;">
+                        <th style="width: 60px;">#ID</th>
+                        <th>ชื่อผู้สั่งซื้อ</th>
+                        <th style="width: 130px;">เบอร์โทรศัพท์</th>
+                        <th style="width: 110px;">ยอดรวมชำระ</th>
+                        <th style="width: 150px;">เวลาที่สั่งซื้อ</th>
+                        <th style="text-align: center; width: 120px;">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in pending_orders %}
+                    <tr style="border-bottom: 1px solid #fef3c7; transition: background 0.15s;" onmouseover="this.style.background='#fffbeb'" onmouseout="this.style.background='white'">
+                        <td style="font-weight: bold; color: #78350f;">#{{ order.id }}</td>
+                        <td style="font-weight: 500;">{{ order.full_name }}</td>
+                        <td style="font-family: monospace; font-size: 12px;">{{ order.phone }}</td>
+                        <td style="font-weight: bold; color: #059669; font-size: 13px;">฿{{ order.total_price|floatformat:0 }}</td>
+                        <td style="color: #6b7280; font-size: 12px;">{{ order.created_at|date:"d/m/Y H:i" }} น.</td>
+                        <td style="text-align: center;">
+                            <a href="/admin/orders/order/{{ order.id }}/change/" style="background: #d4af37; color: #120c08; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 11px; display: inline-block; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                                🔍 ตรวจสอบสลิป
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+{% endif %}
+
+<!-- 🟢 ส่วนที่ 2: แบ่ง 2 คอลัมน์ (ซ้าย 40% - ขวา 60%) -->
+<div class="admin-bottom-container">
+    <!-- คอลัมน์ซ้าย (40%): รายการ App & Model -->
+    <div class="admin-left-column">
+        {{ block.super }}
+    </div>
+</div>
+
+<script>
+    // ย้ายกล่อง Recent actions เข้ามาฝั่งขวา (60%)
+    document.addEventListener("DOMContentLoaded", function() {
+        var recentModule = document.getElementById("recent-actions-module");
+        var container = document.querySelector(".admin-bottom-container");
+        
+        if (recentModule && container) {
+            var rightCol = document.createElement("div");
+            rightCol.className = "admin-right-column";
+            rightCol.appendChild(recentModule);
+            container.appendChild(rightCol);
+        }
+    });
+</script>
+{% endblock %}

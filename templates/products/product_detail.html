@@ -1,0 +1,147 @@
+<!-- templates/products/product_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} | พระเครื่องศักดิ์สิทธิ์{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'products:product_list' %}" class="text-[#A6937C] hover:text-[#D4AF37] transition text-sm flex items-center gap-1">
+        ← กลับไปหน้ารายการวัตถุมงคล
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 sacred-card p-6 md:p-8">
+    
+    <!-- ฝั่งซ้าย: รูปภาพสินค้า & แกลเลอรี -->
+    <div>
+        <!-- รูปภาพหลัก (แก้ไขให้รูปอยู่ครบเต็มองค์ ไม่โดนตัดขอบ + เพิ่ม cursor-pointer) -->
+        <div class="aspect-square bg-[#120C08] rounded-lg border border-[#D4AF37]/30 mb-4 p-2 flex items-center justify-center overflow-hidden relative group">
+            {% if product.main_image %}
+                <img id="mainImage" 
+                     src="{{ product.main_image.url }}" 
+                     alt="{{ product.name }}" 
+                     class="max-w-full max-h-full object-contain cursor-zoom-in transition duration-300 group-hover:scale-105"
+                     onclick="openLightbox(this.src)">
+                <span class="absolute bottom-2 right-2 bg-[#120C08]/80 text-[#D4AF37] text-xs px-2 py-1 rounded border border-[#D4AF37]/30 pointer-events-none">
+                    🔍 คลิกเพื่อขยาย
+                </span>
+            {% else %}
+                <div class="w-full h-full flex items-center justify-center text-[#A6937C]">ไม่มีรูปภาพ</div>
+            {% endif %}
+        </div>
+
+        <!-- รูปประกอบเพิ่มเติม (สลับรูปหลักเมื่อคลิก และสามารถดูขยายได้) -->
+        <div class="grid grid-cols-4 gap-3">
+            {% if product.main_image %}
+                <!-- รูปหลักย่อย -->
+                <div class="aspect-square bg-[#120C08] rounded border border-[#D4AF37]/40 p-1 overflow-hidden cursor-pointer hover:border-[#D4AF37] transition flex items-center justify-center"
+                     onclick="changeMainImage('{{ product.main_image.url }}')">
+                    <img src="{{ product.main_image.url }}" alt="รูปหลัก" class="max-w-full max-h-full object-contain">
+                </div>
+            {% endif %}
+
+            {% for img in product.additional_images.all %}
+                <div class="aspect-square bg-[#120C08] rounded border border-[#D4AF37]/20 p-1 overflow-hidden cursor-pointer hover:border-[#D4AF37] transition flex items-center justify-center"
+                     onclick="changeMainImage('{{ img.image.url }}')">
+                    <img src="{{ img.image.url }}" alt="{{ product.name }}" class="max-w-full max-h-full object-contain">
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ฝั่งขวา: รายละเอียดวัตถุมงคล -->
+    <div class="flex flex-col justify-between">
+        <div>
+            <!-- หมวดหมู่ -->
+            <span class="text-xs text-[#A6937C] uppercase tracking-wider block mb-2">
+                หมวดหมู่: {{ product.category.name }}
+            </span>
+            
+            <!-- ชื่อวัตถุมงคล -->
+            <h1 class="text-2xl md:text-3xl font-bold text-[#D4AF37] mb-4">
+                {{ product.name }}
+            </h1>
+
+            <!-- แท็กสถานะ -->
+            <div class="flex gap-2 mb-6">
+                <span class="bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 text-xs px-3 py-1 rounded-full">
+                    ✓ รับประกันพระแท้
+                </span>
+                {% if product.stock > 0 %}
+                    <span class="bg-green-900/30 text-green-400 border border-green-500/30 text-xs px-3 py-1 rounded-full">
+                        มีสินค้าพร้อมเช่าบูชา (คงเหลือ {{ product.stock }} องค์)
+                    </span>
+                {% else %}
+                    <span class="bg-red-900/30 text-red-400 border border-red-500/30 text-xs px-3 py-1 rounded-full">
+                        ถูกเช่าบูชาแล้ว (สินค้าหมด)
+                    </span>
+                {% endif %}
+            </div>
+
+            <!-- ราคา -->
+            <div class="bg-[#120C08] p-4 rounded-lg border border-[#D4AF37]/20 mb-6">
+                <span class="text-xs text-[#A6937C] block mb-1">ราคาเช่าบูชา</span>
+                {% if product.discount_price %}
+                    <div class="flex items-baseline gap-3">
+                        <span class="text-3xl font-bold text-[#D4AF37]">฿{{ product.discount_price|floatformat:0 }}</span>
+                        <span class="text-sm text-[#A6937C] line-through">฿{{ product.price|floatformat:0 }}</span>
+                    </div>
+                {% else %}
+                    <span class="text-3xl font-bold text-[#D4AF37]">฿{{ product.price|floatformat:0 }}</span>
+                {% endif %}
+            </div>
+
+            <!-- รายละเอียด -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-[#F5E6C8] mb-2 border-b border-[#D4AF37]/20 pb-1">
+                    รายละเอียด & พุทธคุณ
+                </h3>
+                <div class="text-[#A6937C] leading-relaxed whitespace-pre-line text-sm">
+                    {{ product.description|default:"ไม่มีข้อมูลรายละเอียดสินค้า" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- ปุ่มกดสั่งซื้อ -->
+        <div>
+            {% if product.stock > 0 %}
+                <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full btn-gold py-3 text-base flex justify-center items-center gap-2 shadow-lg hover:shadow-[#D4AF37]/30">
+                        🛒 กดเช่าบูชาวัตถุมงคล
+                    </button>
+                </form>
+            {% else %}
+                <button disabled class="w-full bg-[#A6937C]/20 text-[#A6937C] py-3 rounded text-base cursor-not-allowed">
+                    วัตถุมงคลรายการนี้ถูกเช่าบูชาแล้ว
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ================= Modal สำหรับขยายรูปใหญ่ (Lightbox) ================= -->
+<div id="lightboxModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4" onclick="closeLightbox()">
+    <span class="absolute top-4 right-6 text-white text-4xl font-bold cursor-pointer hover:text-[#D4AF37]">&times;</span>
+    <img id="lightboxImage" class="max-w-full max-h-[90vh] object-contain rounded-lg border border-[#D4AF37]/50 shadow-2xl" src="" alt="ขยายรูป">
+</div>
+
+<!-- JavaScript สลับรูปและขยายรูป -->
+<script>
+    // สลับรูปหลักเมื่อกดรูปย่อยด้านล่าง
+    function changeMainImage(src) {
+        document.getElementById('mainImage').src = src;
+    }
+
+    // เปิดรูปขยายใหญ่เต็มจอ (Lightbox)
+    function openLightbox(src) {
+        document.getElementById('lightboxImage').src = src;
+        document.getElementById('lightboxModal').classList.remove('hidden');
+    }
+
+    // ปิด Modal รูปขยาย
+    function closeLightbox() {
+        document.getElementById('lightboxModal').classList.add('hidden');
+    }
+</script>
+{% endblock %}

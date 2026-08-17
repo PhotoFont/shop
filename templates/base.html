@@ -1,0 +1,72 @@
+<!-- templates/base.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}พระเครื่องศักดิ์สิทธิ์ - ศูนย์รวมวัตถุมงคลรับประกันแท้{% endblock %}</title>
+    
+    <!-- เรียกใช้ Tailwind CSS ผ่าน CDN เพื่อช่วยจัด Style ได้รวดเร็ว -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- ฟอนต์ภาษาไทย Kanit จาก Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- ดึงไฟล์ custom style.css ของเรามาใช้ -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+</head>
+<body class="bg-[#120C08] text-[#F5E6C8] min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-[#1C140E] border-b border-[#D4AF37]/30 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+
+            <!-- โลโก้และข้อมูลร้านมุมซ้ายบน (แบบพิมพ์ตรง) -->
+            <a href="{% url 'products:home' %}" class="flex items-center gap-4 hover:opacity-90 transition">
+                <!-- โลโก้เหรียญทองทรงกลม -->
+                <img src="{% static 'images/logo.png' %}" alt="พระเครื่องศักดิ์สิทธิ์" class="w-14 h-14 rounded-full object-cover border border-[#D4AF37]/50 shadow-md">
+                
+                <!-- ข้อความชื่อร้านและช่องทางติดต่อ -->
+                <div class="flex flex-col text-left">
+                    <span class="text-xl font-bold text-[#D4AF37] tracking-wide">
+                        พระเครื่องศักดิ์สิทธิ์
+                    </span>
+                    <span class="text-xs text-[#F5E6C8] mt-0.5">
+                        สอบถามเพิ่มเติมได้ที่ 085-4804-152 Line ID : font2555
+                    </span>
+                </div>
+            </a>    
+                
+            <nav class="space-x-6 text-[#F5E6C8]">
+                <!-- หน้าแรก -->
+                <a href="{% url 'products:home' %}" class="hover:text-[#D4AF37] transition">หน้าแรก</a>
+                
+                {% comment %} <!-- หมวดหมู่พระเครื่อง (อิงจาก name ใน products/urls.py หรือปรับตามชื่อที่คุณตั้ง) -->
+                <a href="{% url 'products:product_list' %}" class="hover:text-[#D4AF37] transition">หมวดหมู่พระเครื่อง</a> {% endcomment %}
+                
+                <!-- ตะกร้าเช่าบูชา (อิงจาก namespace ของแอป cart) -->
+                <a href="{% url 'cart:cart_detail' %}" class="hover:text-[#D4AF37] transition">ตะกร้าเช่าบูชา</a>
+                
+                <!-- ติดต่อเรา (หน้าที่เราเพิ่งสร้าง) -->
+                <a href="{% url 'contact' %}" class="hover:text-[#D4AF37] transition">ติดต่อเรา</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- เนื้อหาหลักแต่ละหน้าจะถูกดึงมาใส่ตรงนี้ -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-6">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#1C140E] border-t border-[#D4AF37]/20 py-6 text-center text-sm text-[#A6937C]">
+        <p>© 2026 พระเครื่องศักดิ์สิทธิ์ - รับประกันพระแท้ตลอดชีพ</p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+</body>
+</html>

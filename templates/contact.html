@@ -1,0 +1,43 @@
+<!-- templates/contact.html -->
+{% extends 'base.html' %} 
+{% load static %} <!-- 🟢 อย่าลืมโหลด static เพื่อให้เรียกรูปภาพได้ -->
+
+{% block content %}
+<div class="container" style="color: white; padding: 30px; text-align: center;">
+    
+    <!-- 🟢 เพิ่มรูปภาพแบนเนอร์ไว้ที่บรรทัดแรกสุด -->
+    <div style="margin-bottom: 30px; display: flex; justify-content: center;">
+        <img src="{% static 'images/banner.jpg' %}" alt="แบนเนอร์พระเครื่องศักดิ์สิทธิ์" style="max-width: 800px; width: 100%; border-radius: 8px; border: 2px solid #D4AF37; box-shadow: 0 4px 6px rgba(0,0,0,0.5);">
+    </div>
+
+    <!-- หัวข้อและข้อมูลติดต่อเดิม -->
+    <h1 style="color: #d4af37; margin-bottom: 20px;">ติดต่อเช่าบูชา / สอบถามข้อมูล</h1>
+    
+    {% if contact %}
+        <div style="margin-top: 10px; font-size: 18px; line-height: 1.8;">
+            <p><strong>ชื่อร้าน:</strong> {{ contact.store_name }}</p>
+            <p><strong>ที่อยู่:</strong> {{ contact.address }}</p>
+            <p><strong>เบอร์โทร:</strong> {{ contact.phone }}</p>
+            
+            {% if contact.line_id %}
+                <p><strong>LINE ID:</strong> {{ contact.line_id }}</p>
+            {% endif %}
+            
+            {% if contact.facebook_url %}
+                <p><a href="{{ contact.facebook_url }}" target="_blank" style="color: #3b82f6;">Facebook Page</a></p>
+            {% endif %}
+        </div>
+
+        <!-- แสดงแผนที่ Google Map -->
+        {% if contact.google_map_embed %}
+            <div style="margin-top: 30px; display: flex; justify-content: center;">
+                {{ contact.google_map_embed|safe }}
+            </div>
+        {% endif %}
+        
+    {% else %}
+        <p>ยังไม่มีข้อมูลการติดต่อ</p>
+    {% endif %}
+
+</div>
+{% endblock %}
