@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # ตั้งค่า Environment สำหรับ Python
 ENV PYTHONDONTWRITEBYTECODE=1
