@@ -1,12 +1,11 @@
 # config/urls.py
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 from orders.models import Order
 from orders import views as order_views
-from django.views.static import serve
-from django.urls import re_path
 
 original_admin_index = admin.site.index
 
@@ -31,8 +30,9 @@ urlpatterns = [
     path('', include('products.urls', namespace='products')), # ให้หน้าแรกของเว็บวิ่งไปที่ App products
 ]
 
+# ✅ แก้ไขเรียบร้อย: เปลี่ยนเป็น (?P<path>.*)
 urlpatterns += [
-    re_path(r'^media/(?rP<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
 # การตั้งค่าให้ Django แสดงผลรูปภาพ media ในช่วงพัฒนาโปรเจกต์ (Debug Mode)
