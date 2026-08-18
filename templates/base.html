@@ -49,7 +49,15 @@
                 <a href="{% url 'products:product_list' %}" class="hover:text-[#D4AF37] transition">หมวดหมู่พระเครื่อง</a> {% endcomment %}
                 
                 <!-- ตะกร้าเช่าบูชา (อิงจาก namespace ของแอป cart) -->
-                <a href="{% url 'cart:cart_detail' %}" class="hover:text-[#D4AF37] transition">ตะกร้าเช่าบูชา</a>
+                <a href="{% url 'cart:cart_detail' %}" class="hover:text-[#D4AF37] transition"><span>ตะกร้าเช่าบูชา</span>
+                    {% if cart|length > 0 %}
+                        <span class="bg-[#D4AF37] text-[#120C08] text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+                            {{ cart|length }}
+                        </span>
+                    {% else %}
+                        <span class="text-xs text-[#A6937C]">(0)</span>
+                    {% endif %}
+                </a>
                 
                 <!-- ติดต่อเรา (หน้าที่เราเพิ่งสร้าง) -->
                 <a href="{% url 'contact' %}" class="hover:text-[#D4AF37] transition">ติดต่อเรา</a>
