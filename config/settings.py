@@ -131,5 +131,9 @@ STORAGES = {
     },
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://shop.saksitpra.com',
+]
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
