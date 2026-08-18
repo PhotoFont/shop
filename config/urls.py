@@ -5,6 +5,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from orders.models import Order
 from orders import views as order_views
+from django.views.static import serve
+from django.urls import re_path
 
 original_admin_index = admin.site.index
 
@@ -27,6 +29,10 @@ urlpatterns = [
     path('cart/', include('cart.urls', namespace='cart')),
     path('orders/', include('orders.urls', namespace='orders')),
     path('', include('products.urls', namespace='products')), # ให้หน้าแรกของเว็บวิ่งไปที่ App products
+]
+
+urlpatterns += [
+    re_path(r'^media/(?rP<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
 # การตั้งค่าให้ Django แสดงผลรูปภาพ media ในช่วงพัฒนาโปรเจกต์ (Debug Mode)

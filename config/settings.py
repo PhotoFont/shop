@@ -14,7 +14,17 @@ ALLOWED_HOSTS = [
     'shop.saksitpra.com',
     'localhost',
     '127.0.0.1',
-    '*',  # ปล่อย wildcard ไว้รองรับ Internal Healthcheck ของ Coolify
+    '*',  # รองรับ Internal Healthcheck ของ Coolify
+]
+
+# Reverse Proxy / SSL Configuration (แก้ปัญหา CSRF 403 และ HTTPS)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://shop.saksitpra.com',
+    'http://shop.saksitpra.com',
 ]
 
 
@@ -58,7 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.media',  # เพิ่มเติมรองรับรูปสินค้า
+                'django.template.context_processors.media',  # รองรับรูปสินค้า
             ],
         },
     },
@@ -68,8 +78,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -79,8 +87,6 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -98,42 +104,30 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
-
-LANGUAGE_CODE = 'th-th'  # ปรับเป็นภาษาไทย (หรือ 'en-us' ตามเดิม)
-
-TIME_ZONE = 'Asia/Bangkok'  # ปรับ Timezone เป็นประเทศไทย
-
+LANGUAGE_CODE = 'th-th'
+TIME_ZONE = 'Asia/Bangkok'
 USE_I18N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # ตำแหน่งรวบรวมไฟล์เมื่อสั่ง collectstatic
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files (รูปภาพสินค้าวัตถุมงคลที่อัปโหลดผ่านระบบ)
+# Media files (รูปภาพสินค้าที่อัปโหลดผ่านระบบ)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Session Configuration
 CART_SESSION_ID = 'cart'
 
-# WhiteNoise Storage for Caching Static Files
+# WhiteNoise Storage (ปรับเป็น CompressedStaticFilesStorage เพื่อป้องกันการบีบอัดล้มเหลว)
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://shop.saksitpra.com',
-]
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
